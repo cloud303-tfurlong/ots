@@ -321,7 +321,17 @@ class TimesheetFileStore(Persistent):
                 disable_numparse=disable_numparse,
             )
         )
-        click.echo(f"Total Work Time: {format_timedelta(total_duration)}")
+        now = datetime.datetime.now()
+        start_of_workday = datetime.datetime(now.year, now.month, now.day, 8, 30)
+        time_since_start_of_workday = now - start_of_workday
+        # click.echo(f"Time since {start_of_workday.strftime('%I:%M%p')}: {format_timedelta(time_since_start_of_workday)}")
+        delta_reported = max(time_since_start_of_workday, total_duration) - min(time_since_start_of_workday, total_duration)
+        delta_reported_sign = "-" if total_duration < time_since_start_of_workday else "+"
+        # click.echo(f"{format_timedelta(delta_reported)} {delta_reported_adverb} than {start_of_workday.strftime('%I:%M%p')}")
+
+        click.echo(f"Total Work Time: {format_timedelta(total_duration)}"
+                   f" ({delta_reported_sign}{format_timedelta(delta_reported)})")
+
 
     @staticmethod
     def count_total_duration(timesheets):
